@@ -5,10 +5,22 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node --watch index.js",
+    "start": "node --watch --loader esm-module-alias/loader --no-warnings index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "tvthanh",
+  "aliases": {
+    "@/routes": "src/routes",
+    "@/constants": "src/constants",
+    "@/controllers": "src/controllers",
+    "@/key": "src/key",
+    "@/middleware": "src/middleware",
+    "@/models": "src/models",
+    "@/respositories": "src/respositories",
+    "@/services": "src/services",
+    "@/utils": "src/utils",
+    "@/config": "src/config"
+  },
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
