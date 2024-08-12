@@ -1,6 +1,5 @@
 import { UserService } from "@/services/index.js";
 import { JWT } from "@/utils/index.js";
-import liveSessions from "../../store.js";
 
 // Viewer, Streamer, Admin:
 
@@ -23,6 +22,13 @@ const userController = {
       });
 
       return { accessToken, refreshToken };
+    }
+  },
+  logout: async (accessToken, refreshToken) => {
+    try {
+      await UserService.logoutWithBlacklistToken(accessToken, refreshToken);
+    } catch (error) {
+      throw error;
     }
   },
 
@@ -77,6 +83,29 @@ const userController = {
   },
 
   // update info profile
+  updateInfo: async (
+    uid,
+    avatar = "",
+    displayName = "",
+    firstName = "",
+    lastName = "",
+    wasborn = "",
+    phoneNumber = ""
+  ) => {
+    try {
+      await UserService.updateProfileUser(uid, {
+        avatar,
+        displayName,
+        firstName,
+        lastName,
+        wasborn,
+        phoneNumber,
+      });
+    } catch (error) {
+      throw error;
+    }
+  },
+
   // - watch live
   // - chat realtime
   // - give a gift

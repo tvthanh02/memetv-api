@@ -1,4 +1,7 @@
-import { UserRespository } from "@/respositories/index.js";
+import {
+  UserRespository,
+  BlacklistTokenRespository,
+} from "@/respositories/index.js";
 import { BcryptJS } from "@/utils/index.js";
 import { CustomError } from "@/utils/index.js";
 
@@ -38,6 +41,15 @@ const userServices = {
       throw new Error("Account not exist " + error);
     }
   },
+
+  logoutWithBlacklistToken: async (accessToken, refreshToken) => {
+    try {
+      await BlacklistTokenRespository.insertOne(accessToken, refreshToken);
+    } catch (error) {
+      throw error;
+    }
+  },
+
   createUserWithGoogle: async (googleId, displayName, avatar, email) => {
     try {
       const rows = await UserRespository.isExistEmail(email);
@@ -63,6 +75,29 @@ const userServices = {
         return null;
       }
       return user;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  updateProfileUser: async (userId, infoUpdate) => {
+    const { avatar, displayName, firstName, lastName, wasborn, phoneNumber } =
+      infoUpdate;
+
+    const user = await UserRespository.getOneById(userId);
+
+    if (!user) {
+      throw new CustomError.NotFound("Not found user. Please check!");
+    }
+    avatar && (user.avatar = avatar);
+    displayName && (user.displayName = displayName);
+    firstName && (user.firstName = firstName);
+    lastName && (user.lastName = lastName);
+    wasborn && (user.wasborn = wasborn);
+    phoneNumber && (user.phoneNumber = phoneNumber);
+
+    try {
+      await UserRespository.updateOne(user);
     } catch (error) {
       throw error;
     }
