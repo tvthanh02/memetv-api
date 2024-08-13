@@ -1,5 +1,8 @@
-import { UserService } from "@/services/index.js";
+import { MomoService, UserService } from "@/services/index.js";
+import { Generate, JWT } from "@/utils/index.js";
 import liveSessions from "../../store.js";
+import { GiftOfLive, Banned, Gift, Follow } from "@/models/index.js";
+import { UserRespository } from "@/respositories/index.js";
 
 // common:
 
@@ -111,12 +114,104 @@ const userController = {
 
   // - give a gift
 
+  giveAGift: async (liveId, senderId, itemId) => {
+    const [liveInGiveAGift, gift] = await Promise.all([
+      GiftOfLive.findOne({ liveId: liveId }).exec(),
+      Gift.findById(itemId).exec(),
+    ]);
+    if (liveInGiveAGift) {
+      // check sender exist
+      const giftSenderGave = liveInGiveAGift.gifts.find(
+        (gift) => gift.sender.toString() === senderId
+      );
+
+      if (giftSenderGave) {
+        giftSenderGave.items.push({
+          giftId: itemId,
+          coin: gift.coin,
+        });
+        await liveInGiveAGift.save();
+        return giftSenderGave;
+      }
+
+      liveInGiveAGift.gifts.push({
+        sender: senderId,
+        items: [
+          {
+            giftId: itemId,
+            coin: gift.coin,
+          },
+        ],
+      });
+      await liveInGiveAGift.save();
+      return {
+        sender: senderId,
+        items: {
+          giftId: itemId,
+          coin: gift.coin,
+        },
+      };
+    } else {
+      return await GiftOfLive.create({
+        liveId: liveId,
+        gifts: [
+          {
+            sender: senderId,
+            items: {
+              giftId: itemId,
+              coin: gift.coin,
+            },
+          },
+        ],
+      });
+    }
+  },
+
   // - follow streamer
+  followStreamer: async (followerId, streamerId) => {
+    // only follow streamer
+    const [streamer, listOfFollower] = await Promise.all([
+      UserRespository.getOneById(streamerId),
+      Follow.find({ follower: followerId }).exec(),
+    ]);
+    if (followerId === streamerId) {
+      throw new Error("Invalid recursive follow");
+    }
+    if (!["idol", "game"].includes(streamer.role)) {
+      throw new Error("Feature only available with follow streamer");
+    }
+    // haven't follow before
+    if (
+      listOfFollower
+        .map((item) => item.followee.toString())
+        .includes(streamerId)
+    ) {
+      throw new Error("This streamer has been followed before");
+    }
+
+    await Follow.create({
+      follower: followerId,
+      followee: streamerId,
+    });
+
+    return streamer.displayName;
+  },
 
   // - recharge coin
 
+  rechargeCoin: async (userId, rechargePackageId) => {
+    // receive payment link
+    const paymentLink = await MomoService.createTransaction(
+      userId,
+      rechargePackageId
+    );
+    return paymentLink;
+  },
+
   // - watch restream
 
+  // ******* Viewer:
+  // - register become streamer
   // ******* Viewer:
   // - register become streamer
 
@@ -135,7 +230,35 @@ const userController = {
 
     return streamKey;
   },
-  // - ban user
+
+  ban: async (streamerId, userId) => {
+    const listBannedOfStreamer = await Banned.findOne({
+      streamer: streamerId,
+    }).exec();
+
+    if (listBannedOfStreamer) {
+      const isUserBanned = listBannedOfStreamer.bans.find(
+        (userBannedId) => userBannedId.user.toString() === userId
+      );
+
+      if (isUserBanned) {
+        throw new Error("This user has been banned before");
+      }
+
+      listBannedOfStreamer.bans.push({
+        user: userId,
+      });
+      await listBannedOfStreamer.save();
+      return listBannedOfStreamer;
+    }
+
+    const newListBannedOfStreamer = await Banned.create({
+      streamer: streamerId,
+      bans: [{ user: userId }],
+    });
+
+    return newListBannedOfStreamer;
+  },
 
   // admin:
   // - accept form become a streamer

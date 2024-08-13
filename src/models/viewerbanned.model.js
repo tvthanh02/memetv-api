@@ -13,8 +13,9 @@ const Banned = mongoose.model(
   "Banned",
   new Schema({
     streamer: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    Bans: [
+    bans: [
       {
+        _id: false,
         user: { type: Schema.Types.ObjectId, ref: "User", required: true },
         createdAt: {
           type: Date,

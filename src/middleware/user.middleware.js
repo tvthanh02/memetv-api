@@ -1,4 +1,6 @@
 import { Regex } from "@/constants/index.js";
+import { UserRespository } from "@/respositories/index.js";
+import { Gift } from "@/models/index.js";
 
 const userMiddleware = {
   // with email, password
@@ -22,6 +24,28 @@ const userMiddleware = {
         return;
       }
     }
+
+    next();
+  },
+
+  isValidCoinWhenGiveGift: async (req, res, next) => {
+    const { uid } = req.headers.payload;
+    const { itemId } = req.body;
+
+    const [sender, gift] = await Promise.all([
+      UserRespository.getOneById(uid),
+      Gift.findById(itemId).exec(),
+    ]);
+
+    if (sender.coin < gift.coin) {
+      res.status(402).json({
+        error: 1,
+        message: "Coin invalid",
+      });
+      return;
+    }
+    sender.coin -= gift.coin;
+    await sender.save();
 
     next();
   },

@@ -6,7 +6,7 @@ const userRespositories = {
       return await User.create({
         email: email,
         password: password,
-        role: "Viewer",
+        role: "viewer",
         coin: 0,
       });
     } catch (error) {
