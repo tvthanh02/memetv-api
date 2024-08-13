@@ -63,7 +63,7 @@ const commonMiddleware = {
     try {
       const currentUser = await User.findById(uid).exec();
       console.log(currentUser);
-      if (!["Idol", "Game"].includes(currentUser.role)) {
+      if (!["idol", "game"].includes(currentUser.role)) {
         res.status(403).json({
           error: 1,
           message: "Forbidden",
