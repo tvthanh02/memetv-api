@@ -6,3 +6,5 @@ export { default as Follow } from "./follow.model.js";
 export { default as Banned } from "./viewerbanned.model.js";
 export { default as GiftOfLive } from "./giftoflive.model.js";
 export { default as BlacklistToken } from "./blacklisttoken.model.js";
+export { default as CoinPrice } from "./coinprice.model.js";
+export { default as Payment } from "./payment.model.js";
