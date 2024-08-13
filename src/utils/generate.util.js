@@ -1,3 +1,5 @@
+import crypto from "crypto";
+
 function generateUniqueSixDigitNumber() {
   const digits = [];
 
@@ -12,6 +14,9 @@ function generateUniqueSixDigitNumber() {
 
 const generateApi = {
   defaultDisplayName: `user${generateUniqueSixDigitNumber()}`,
+  generateStreamkey: () => {
+    return crypto.randomBytes(16).toString("hex");
+  },
 };
 
 export default generateApi;
