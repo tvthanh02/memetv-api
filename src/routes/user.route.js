@@ -111,13 +111,41 @@ userRouter.post(
       } else {
         res.status(500).json({
           error: 1,
-          message: "Internal Server Error",
+          message: "Internal Server Error " + error,
         });
       }
     }
   }
 );
 
+// give a gift
+
+// follow
+
+// recharge coin
+
 // streamer
+
+userRouter.post(
+  "/create-live",
+  CommonMiddleware.loggedIn,
+  CommonMiddleware.isStreamer,
+  (req, res) => {
+    const { uid } = req.headers.payload;
+    const { title, thumbnail, tag } = req.body;
+
+    if (!title || !thumbnail || !tag) {
+      res.status(400).json({
+        error: 1,
+        message: "Bad request",
+      });
+      return;
+    }
+
+    const stream_key = UserController.startLive(uid, thumbnail, tag, title);
+
+    res.status(200).json(stream_key);
+  }
+);
 
 export default userRouter;

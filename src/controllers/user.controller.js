@@ -1,7 +1,7 @@
 import { UserService } from "@/services/index.js";
-import { JWT } from "@/utils/index.js";
+import liveSessions from "../../store.js";
 
-// Viewer, Streamer, Admin:
+// common:
 
 const userController = {
   // email + password
@@ -24,6 +24,7 @@ const userController = {
       return { accessToken, refreshToken };
     }
   },
+
   logout: async (accessToken, refreshToken) => {
     try {
       await UserService.logoutWithBlacklistToken(accessToken, refreshToken);
@@ -107,23 +108,39 @@ const userController = {
   },
 
   // - watch live
-  // - chat realtime
+
   // - give a gift
+
   // - follow streamer
+
   // - recharge coin
+
   // - watch restream
+
+  // ******* Viewer:
+  // - register become streamer
+
+  //***** streamer:
+
+  // - live
+  startLive: (streamerId, thumbnail, tag, title) => {
+    const streamKey = Generate.generateStreamkey();
+
+    liveSessions[streamKey] = {
+      streamerId,
+      thumbnail,
+      tag,
+      title,
+    };
+
+    return streamKey;
+  },
+  // - ban user
+
+  // admin:
+  // - accept form become a streamer
+  // - ban streamer
+  // - create event
 };
-
-// Viewer:
-// - register become streamer
-
-// streamer:
-// - live
-// - ban user
-
-// admin:
-// - accept form become a streamer
-// - ban streamer
-// - create event
 
 export default userController;

@@ -18,11 +18,12 @@ const Live = mongoose.model(
   new Schema(
     {
       streamerId: { type: Schema.Types.ObjectId, ref: "User", required: true },
-      title: String,
-      thumbnail: String,
-      urlHlsStream: String,
-      status: { type: String, enum: ["live", "end"] },
-      tag: String,
+      title: { type: String, required: true },
+      thumbnail: { type: String, required: true },
+      urlChatLive: { type: String, required: true },
+      urlHlsStream: { type: String, required: true },
+      status: { type: String, enum: ["live", "end"], required: true },
+      tag: { type: String, required: true },
     },
     { timestamps: true }
   )
